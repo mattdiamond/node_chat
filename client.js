@@ -1,6 +1,7 @@
 var CONFIG = { debug: false
              , nick: "#"   // set in onConnect
              , id: null    // set in onConnect
+             , url: null
              , last_message_time: 1
              , focus: true //event listeners bound in onConnect
              , unread: 0 //updated in the message-processing loop
@@ -248,10 +249,24 @@ function updateRSS () {
   }
 }
 
-function updateUptime () {
+/*function updateUptime () {
   if (starttime) {
     $("#uptime").text(starttime.toRelativeTime());
   }
+}*/
+
+function updateJoinUrl () {
+	if (CONFIG.url) {
+		location.hash = CONFIG.url.split("#")[1];
+		var loc = window.location.toString();
+		$("#joinurl").text(loc);
+	}
+}
+
+function updateNick () {
+	if (CONFIG.nick) {
+		$("#nick").text(CONFIG.nick);
+	}
 }
 
 var transmission_errors = 0;
@@ -264,6 +279,8 @@ var first_poll = true;
 // function's execution.
 function longPoll (data) {
   if (transmission_errors > 2) {
+  	// TODO: if we failed to connect to the server, reset the room
+  	// location.hash = "";
     showConnect();
     return;
   }
@@ -373,9 +390,9 @@ function showChat (nick) {
 //we want to show a count of unread messages when the window does not have focus
 function updateTitle(){
   if (CONFIG.unread) {
-    document.title = "(" + CONFIG.unread.toString() + ") node chat";
+    document.title = "(" + CONFIG.unread.toString() + ") quick group chat";
   } else {
-    document.title = "node chat";
+    document.title = "quick group chat";
   }
 }
 
@@ -394,10 +411,13 @@ function onConnect (session) {
 
   CONFIG.nick = session.nick;
   CONFIG.id   = session.id;
+  CONFIG.url  = session.url;
   starttime   = new Date(session.starttime);
   rss         = session.rss;
   updateRSS();
-  updateUptime();
+  //updateUptime();
+  updateJoinUrl();
+  updateNick();
 
   //update the UI to show the chat
   showChat(CONFIG.nick);
@@ -413,18 +433,24 @@ function onConnect (session) {
     CONFIG.unread = 0;
     updateTitle();
   });
+  
+  // begin polling the server
+  // TODO: moved here from the ready
+  longPoll();
 }
 
 //add a list of present chat members to the stream
 function outputUsers () {
   var nick_string = nicks.length > 0 ? nicks.join(", ") : "(none)";
-  addMessage("users:", nick_string, new Date(), "notice");
+  if (nick_string.length == 0) nick_string = nicks[0];
+  // TODO: figure out why this gets stuck
+  //addMessage("users:", nick_string, new Date(), "notice");
   return false;
 }
 
 //get a list of the users presently in the room, and add it to the stream
 function who () {
-  jQuery.get("/who", {}, function (data, status) {
+  jQuery.get("/who", {id : CONFIG.id}, function (data, status) {
     if (status != "success") return;
     nicks = data.nicks;
     outputUsers();
@@ -462,15 +488,17 @@ $(document).ready(function() {
       showConnect();
       return false;
     }
-
+    
+    var room = (location.hash == undefined) ? "" : location.hash.replace("#room", "");
+    
     //make the actual join request to the server
     $.ajax({ cache: false
            , type: "GET" // XXX should be POST
            , dataType: "json"
            , url: "/join"
-           , data: { nick: nick }
-           , error: function () {
-               alert("error connecting to server");
+           , data: { nick: nick, room: room }
+           , error: function (data) {
+               alert("error connecting to server " + data.error);
                showConnect();
              }
            , success: onConnect
@@ -479,9 +507,9 @@ $(document).ready(function() {
   });
 
   // update the daemon uptime every 10 seconds
-  setInterval(function () {
+  /*setInterval(function () {
     updateUptime();
-  }, 10*1000);
+  }, 10*1000);*/
 
   if (CONFIG.debug) {
     $("#loading").hide();
@@ -496,7 +524,9 @@ $(document).ready(function() {
   //begin listening for updates right away
   //interestingly, we don't need to join a room to get its updates
   //we just don't show the chat stream to the user until we create a session
-  longPoll();
+  // TODO: moving this to onConnect. Does this make sense?
+  // for the new design, we want to have a session before we poll the server
+  //longPoll();
 
   showConnect();
 });

@@ -105,6 +105,6 @@ a:hover { text-decoration: underline; color: #aaa; }
   margin: 0 2em 0 0;
 }
 
-#usersLink {
+#usersLink, #email {
   color: inherit;
 }

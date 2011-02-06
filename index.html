@@ -3,18 +3,17 @@
     <link rel="stylesheet" href="style.css" type="text/css"/>
     <script src="jquery-1.2.6.min.js" type="text/javascript"></script>
     <script src="client.js" type="text/javascript"></script>
-    <title>node chat</title>
+    <title>quick group chat</title>
   </head>
   <body>
     <div id="app">
       <div id="connect">
+      <h1>Quick Group Chat</h1>
         <form action="#">
           <fieldset> 
             <p>
-              This is a chat room. Both the client-side and server-side are
-              written in javascript. The source code is
-              <a href="http://github.com/ry/node_chat/tree/master">here</a>.
-            </p>
+              This is a group chat service. To start a new chat room enter your name below.
+              </p>
 
             <label for="nick">Name</label>
             <input id="nickInput" class="text"type="text" name="nick" value=""/>
@@ -22,6 +21,7 @@
 
           </fieldset>
         </form>
+        <div>forked from https://github.com/ry/node_chat / built with jQuery + nodejs</div>
       </div>
       <div id="loading"><p>loading</p></div>
       <div id="log">
@@ -179,10 +179,12 @@
       </div>
       <div id="toolbar">
         <ul id="status">
+          <li>url: <span id="joinurl">http://nothing</span></li>
           <li><a id="usersLink" href="#">5 users</a></li>
-          <li>uptime: <span id="uptime">?</span></li>
-          <li>memory: <span id="rss">?</span>mb RSS</li>
-        </ul>
+          <!--<li>uptime: <span id="uptime">?</span></li>-->
+          <li>you: <span id="nick">somebody</span></li>
+          <li><a id="email" href="javascript:alert('coming soon');">email transcript</li>
+          </ul>
         <input tabindex="1" type="text" id="entry"/>
       </div>
   </body>
