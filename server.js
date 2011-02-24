@@ -186,9 +186,11 @@ setInterval(function () {
 }, 1000);
 
 // TODO: interval to dump out system stats
+/*
 setInterval(function () {
 	sys.puts(dumpSystemStats());
 }, 5000);
+*/
 
 function dumpSystemStats() {
 
