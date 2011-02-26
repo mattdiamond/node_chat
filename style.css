@@ -108,3 +108,56 @@ a:hover { text-decoration: underline; color: #aaa; }
 #usersLink, #email {
   color: inherit;
 }
+
+/*
+Generated at:
+http://design.geckotribe.com/colorwheel/
+
+rgb: 75, 25, 50
+angle: 30.0
+shade1: .6
+shade2: .3
+tint1: .8
+tint2: .4
+
+Split compliment set
+
+colorwheel0 is always a light grey for the user
+*/
+.colorwheel0 {
+   background-color: #666;
+}
+.colorwheel1 {
+   background-color: #A3B7A3;
+}
+.colorwheel2 {
+   background-color: #B7A3AD;
+}
+.colorwheel3 {
+   background-color: #A3B7B7;
+}
+.colorwheel4 {
+   background-color: #527752;
+}
+.colorwheel5 {
+   background-color: #785365;
+}
+.colorwheel6 {
+   background-color: #527777;
+}
+.colorwheel7 {
+   background-color: #184A18;
+}
+.colorwheel8 {
+   background-color: #4B1932;
+}
+.colorwheel9 {
+   background-color: #184A4A;
+}
+.colorwheel10 {
+   background-color: #103110;
+}
+.colorwheel11 {
+   background-color: #321121;
+}
+

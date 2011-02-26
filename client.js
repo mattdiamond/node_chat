@@ -119,6 +119,13 @@ function updateUsersLink ( ) {
 function userJoin(nick, timestamp) {
   //put it in the stream
   addMessage(nick, "joined", timestamp, "join");
+  
+  // create a new CSS class for him unless it's the logged in user
+  // they get their own class elsewhere
+  if(nick != CONFIG.nick) {
+  	$("<style type='text/css'> ." + nick + "{ padding: 10px; border-radius: 15px; } </style>").appendTo("head");
+  }
+  
   //if we already know about this user, ignore it
   for (var i = 0; i < nicks.length; i++)
     if (nicks[i] == nick) return;
@@ -211,6 +218,10 @@ function addMessage (from, text, time, _class) {
   var messageElement = $(document.createElement("table"));
 
   messageElement.addClass("message");
+  
+  // add the styling for this specific user
+  //messageElement.addClass(from);
+  
   if (_class)
     messageElement.addClass(_class);
 
@@ -224,12 +235,25 @@ function addMessage (from, text, time, _class) {
 
   // replace URLs with links
   text = text.replace(util.urlRE, '<a target="_blank" href="$&">$&</a>');
-
-  var content = '<tr>'
+  
+  // just get some unique-ish numbers for this user
+  var color = "";
+  if (from == CONFIG.nick) {
+  	color = "colorwheel0";
+  }
+  else {
+  	var charcodes = 0;
+  	for (var i = 0; i < from.length; i++) {
+ 		charcodes += from.charCodeAt(i);
+  	}
+  	color = "colorwheel" + ((charcodes % 10) + 1);
+  }
+  
+  var content = '<div class="' + from + ' ' + color + '"><tr>'
               + '  <td class="date">' + util.timeString(time) + '</td>'
               + '  <td class="nick">' + util.toStaticHTML(from) + '</td>'
               + '  <td class="msg-text">' + text  + '</td>'
-              + '</tr>'
+              + '</div></tr>'
               ;
   messageElement.html(content);
 
@@ -433,6 +457,10 @@ function onConnect (session) {
     CONFIG.unread = 0;
     updateTitle();
   });
+  
+  // create a style for the user
+  $("<style type='text/css'> ." + session.nick + " { padding: 5px; border-radius: 10px; } </style>").appendTo("head");
+
   
   // begin polling the server
   // TODO: moved here from the ready
