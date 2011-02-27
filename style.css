@@ -77,7 +77,8 @@ a:hover { text-decoration: underline; color: #aaa; }
 .personal .nick, .notice .nick { color: #cd5; }
 
 .message {
-  margin: 0.1em 0;
+  /* margin: 0.1em 0; 
+  remove the margin so the bubbles bleed togehter */
 }
 
 .message td {

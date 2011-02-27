@@ -236,7 +236,7 @@ function addMessage (from, text, time, _class) {
   // replace URLs with links
   text = text.replace(util.urlRE, '<a target="_blank" href="$&">$&</a>');
   
-  // just get some unique-ish numbers for this user
+  // just get some unique-ish numbers for this user to assign the bubble a color
   var color = "";
   if (from == CONFIG.nick) {
   	color = "colorwheel0";
@@ -459,7 +459,7 @@ function onConnect (session) {
   });
   
   // create a style for the user
-  $("<style type='text/css'> ." + session.nick + " { padding: 5px; border-radius: 10px; } </style>").appendTo("head");
+  $("<style type='text/css'> ." + session.nick + " { padding: 5px; border-radius: 2px; } </style>").appendTo("head");
 
   
   // begin polling the server
