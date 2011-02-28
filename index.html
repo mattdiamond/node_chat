@@ -1,7 +1,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="style.css" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT+Serif|Ubuntu">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Syncopate|Cabin|Yanone+Kaffeesatz|Ubuntu|PT Serif">
     <script src="jquery-1.2.6.min.js" type="text/javascript"></script>
     <script src="client.js" type="text/javascript"></script>
     <title>quick group chat</title>
@@ -13,17 +13,18 @@
         <form action="#">
           <fieldset> 
             <p>
-              This is a group chat service. To start a new chat room enter your name below.
-              </p>
-
+              This is a simple group chat service.
+              
+			<div id="instructions"> asdf asdfsda</div>
+            </p>
             <label for="nick">Name</label>
             <input id="nickInput" class="text"type="text" name="nick" value=""/>
             <input id="connectButton" class="button" type="submit" name="" value="Join"/>
 
           </fieldset>
         </form>
-        <div>forked by <a href="http://www.adityabansod.net">Aditya Bansod</a> from <a href="https://github.com/ry/node_chat">node_chat</a></div>
-        <div>built with jQuery + nodejs</div>
+        <div style="font-size: 12; padding: 2px">forked by <a href="http://www.adityabansod.net">Aditya Bansod</a> from <a href="https://github.com/ry/node_chat">node_chat</a>. built with jQuery + nodejs.</div>
+        <div style="font-size: 12; padding: 2px">btw: no chat logs saved. rooms disappear after last person leaves.</div>
       </div>
       <div id="loading"><p>loading</p></div>
       <div id="log">

@@ -233,11 +233,39 @@ fu.get("/status", function(req, res) {
 
 
 fu.get("/who", function (req, res) {
+  res.simpleJSON(500, {error: "who is not implemented"});
+  return;
+  
+  /*
+  // who gets called with either a session 'id' or a room 'roomid'
   var id = qs.parse(url.parse(req.url).query).id;
+  var roomid = qs.parse(url.parse(req.url).query).roomid;
+
+  var noid = false;
   if (id == null) {
   	res.simpleJSON(400, {error: "Must provide an ID to query who"});
-  	return;
+  	noid = true;
   }
+  if (sessions[id] == null) {
+  	res.simpleJSON(400, {error: "No valid session for that ID"});
+  	noid = true;
+  }
+
+  var noroom = false;
+  if (roomid == null) {
+  	res.simpleJSON(400, {error: "Must provide an roomid to query who"});
+  	noroom = true;
+  }
+  if (rooms[id] == null) {
+  	res.simpleJSON(400, {error: "No valid room for that roomid"});
+  	noroom = true;
+  }
+
+  sys.puts("who id = " + id + " roomid = " + roomid);
+  sys.puts(noid + " " + noroom);
+  
+  if (noid && noroom) return;
+  
   
   // find the room this session is in
   var roomid = sessions[id].room.id;
@@ -246,12 +274,6 @@ fu.get("/who", function (req, res) {
   for (var searchid in sessions) {
     if (!sessions.hasOwnProperty(searchid)) continue;
     var session = sessions[searchid];
-    /*sys.puts("nick found: " + session.nick + " roomid = " + roomid);
-    // only add the nicks that are in the room the client is in
-    sys.puts ("session.room != undefined: " + (session.room != undefined));
-    if (session.room != undefined) {
-    	sys.puts ("session.room.id == roomid : " + (session.room.id == roomid));
-    }*/
     
     if (session.room != undefined && session.room.id == roomid) continue;
     nicks.push(session.nick);
@@ -260,6 +282,7 @@ fu.get("/who", function (req, res) {
   res.simpleJSON(200, { nicks: nicks
                       , rss: mem.rss
                       });
+  */
 });
 
 fu.get("/join", function (req, res) {

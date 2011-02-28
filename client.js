@@ -123,7 +123,7 @@ function userJoin(nick, timestamp) {
   // create a new CSS class for him unless it's the logged in user
   // they get their own class elsewhere
   if(nick != CONFIG.nick) {
-  	$("<style type='text/css'> ." + nick + "{ padding: 10px; border-radius: 15px; } </style>").appendTo("head");
+  	$("<style type='text/css'> ." + nick + "{ padding: 5px; border-radius: 10px; } </style>").appendTo("head");
   }
   
   //if we already know about this user, ignore it
@@ -249,11 +249,11 @@ function addMessage (from, text, time, _class) {
   	color = "colorwheel" + ((charcodes % 10) + 1);
   }
   
-  var content = '<div class="' + from + ' ' + color + '"><tr>'
+  var content = '<tr>'
               + '  <td class="date">' + util.timeString(time) + '</td>'
               + '  <td class="nick">' + util.toStaticHTML(from) + '</td>'
-              + '  <td class="msg-text">' + text  + '</td>'
-              + '</div></tr>'
+              + '  <td class="msg-text"><div class="' + from + ' ' + color + '">' + text  + '</div></td>'
+              + '</tr>'
               ;
   messageElement.html(content);
 
@@ -391,6 +391,26 @@ function showConnect () {
   $("#loading").hide();
   $("#toolbar").hide();
   $("#nickInput").focus();
+  
+  // show the correct instructions
+  var inRoom = (location.hash.length > 0 ) ? true : false;
+  if (inRoom) {
+  	text = "You are joining an existing room. Enter your name to join.";
+  	// one day, when i get who to work, this will populate the number of users in the room
+  	/*
+  	var room = location.hash.replace("#room", "");
+  	jQuery.get("/who", {roomid : room}, function (data, status) {
+		if (status != "success") return;
+    	nicks = data.nicks;
+    	alert(nicks);
+    	$("#instructions").text("You are joining an existing room with " + nicks.length + " members. Enter you name to join.");
+  	}, "json");
+  	*/
+  } else {
+  	text = "To start a new chat room enter your name below.";
+  }
+  
+  $("#instructions").text(text);
 }
 
 //transition the page to the loading screen
@@ -459,7 +479,7 @@ function onConnect (session) {
   });
   
   // create a style for the user
-  $("<style type='text/css'> ." + session.nick + " { padding: 5px; border-radius: 2px; } </style>").appendTo("head");
+  $("<style type='text/css'> ." + session.nick + " { padding: 2px; border-radius: 2px; } </style>").appendTo("head");
 
   
   // begin polling the server
