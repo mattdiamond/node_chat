@@ -109,10 +109,11 @@ function createSession (nick, room) {
   if (/[^\w_\-^!]/.exec(nick)) return null;
 
   // bail out if that name is already here
+  /* TODO: fix this later so that each room can only have one instance of a nick
   for (var i in sessions) {
     var session = sessions[i];
     if (session && session.nick === nick) return null;
-  }
+  } */
   
   var session = { 
     nick: nick, 
