@@ -67,16 +67,18 @@ var channel = new function () {
   this.query = function (session, since, callback) {
     var matching = [];
     var room = session.room.id;
-    for (var i = 0; i < rooms[room].messages.length; i++) {
-      var message = rooms[room].messages[i];
-      if (message.timestamp > since)
-        matching.push(message)
-    }
+    if(room in rooms) {
+	 	for (var i = 0; i < rooms[room].messages.length; i++) {
+	  	var message = rooms[room].messages[i];
+	  	if (message.timestamp > since)
+			matching.push(message)
+		}	
 
-    if (matching.length != 0) {
-      callback(matching);
-    } else {
-      rooms[room].callbacks.push({ timestamp: new Date(), callback: callback });
+		if (matching.length != 0) {
+		  callback(matching);
+		} else {
+		  rooms[room].callbacks.push({ timestamp: new Date(), callback: callback });
+		}
     }
   };
 
@@ -196,26 +198,11 @@ setInterval(function () {
 function dumpSystemStats() {
 
 	var now = new Date();
-	var results = "";
+	var results = {};
 
-	results += "at " + now + " the system reports:\n";
+	results.time = now;
+	results.rooms = rooms;
 
-	//sys.puts(sessions.length);
-	for (var id in rooms) {
-		if (!rooms.hasOwnProperty(id)) continue;
-		
-		var room = rooms[id];
-		
-		results += "room: " + room.id + " " + room.timestamp + "\n";
-		
-		for (var sessionid in room.sessions) {
-			if (!room.sessions.hasOwnProperty(sessionid)) continue;
-			
-			var session = room.sessions[sessionid];
-			
-			results += "\tsession: " + session.nick + " " + session.id;
-		}
-	}
 	
 	return results;
 }
