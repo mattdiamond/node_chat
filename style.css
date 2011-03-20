@@ -206,9 +206,14 @@ colorwheel0 is always a light grey for the user
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
-	padding: 10px;
+	padding: 0 10px 10px 10px;
 	background-color: hsl(240, 50%, 90%);
 	cursor: pointer;
+}
+
+.chatWindow .title {
+	padding: 5px 0;
+	color: #555;
 }
 
 .chatWindow .entry {
@@ -220,7 +225,7 @@ colorwheel0 is always a light grey for the user
 }
 
 .chatWindow .log {
-	background: #222;
+	background: #eee;
 	padding: 10px;
 	-webkit-border-radius: 10px 10px 0 0;
 	-moz-border-radius: 10px 10px 0 0;
@@ -230,4 +235,5 @@ colorwheel0 is always a light grey for the user
 .chatWindow table {
 	font-size: 16px;
 	line-height: 140%;
+	color: #333;
 }

@@ -522,6 +522,15 @@ $(document).ready(function() {
     var room = $(this).closest('.chat').attr('data-name');
     if (!util.isBlank(msg)) send(msg, room);
     $(this).val(''); // clear the entry field.
+    
+    //auto-generate chat rooms for each hash you enter
+    var hashes = msg.match(/#\w+/g);
+  	if (hashes){
+  		$.each(hashes, function(i, val){
+  			var room = val.substring(1);
+  			spawnRoom(room);
+  		});
+  	}
   });
 
   $("#usersLink").click(outputUsers);
@@ -612,8 +621,9 @@ function spawnRoom(name){
 	$.getJSON('/joinRoom', {id: CONFIG.id, room: name }, function(response){
 		if (response.result == 'success'){
 			var window = $(".chatWindow.template").clone().attr('data-name', name).removeClass('template');
+			$(".title", window).text('#'+name)
 			window.appendTo("body").draggable().resizable();
-			window.show();
+			window.show('fold', 250);
 			console.log(currPoll);
 			currPoll.abort();
 			longPoll(); // need to restart long polling with new room config
