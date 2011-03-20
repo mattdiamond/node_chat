@@ -25,11 +25,12 @@ var channel = new function () {
   //var messages = [],
   //    callbacks = [];
 
-  this.appendMessage = function (nick, type, text) {
+  this.appendMessage = function (nick, type, text, room) {
     var m = { nick: nick
             , type: type // "msg", "join", "part"
             , text: text
             , timestamp: (new Date()).getTime()
+            , room: room //for later retrieval by the client
             };
 
     switch (type) {
@@ -43,8 +44,7 @@ var channel = new function () {
         sys.puts(nick + " part");
         break;
     }
-
-    var room = sessions.fromnick(nick).room.id;
+	
     //sys.puts("this is the roomsroom: " + rooms[room]);
     if (rooms[room] == undefined)  {
     	rooms[room] = { messages: [], callbacks: [] };
@@ -53,8 +53,7 @@ var channel = new function () {
     
     rooms[room].messages.push( m );
     //sys.puts("appendMessage for " + nick + " in room " + room);
-    //sys.puts("--> room messages length: " + rooms[room].messages.length);
-    
+    //sys.puts("--> room messages length: " + rooms[room].messages.length);    
 
     while (rooms[room].callbacks.length > 0) {
       rooms[room].callbacks.shift().callback([m]);
@@ -64,22 +63,30 @@ var channel = new function () {
       rooms[room].messages.shift();
   };
 
-  this.query = function (session, since, callback) {
+  this.query = function (roomsQuery, since, callback) {
     var matching = [];
-    var room = session.room.id;
-    if(room in rooms) {
-	 	for (var i = 0; i < rooms[room].messages.length; i++) {
-	  	var message = rooms[room].messages[i];
-	  	if (message.timestamp > since)
-			matching.push(message)
-		}	
-
-		if (matching.length != 0) {
-		  callback(matching);
+    //var room = session.room.id;
+    for(var r = 0; r < roomsQuery.length; r++){
+    	var room = roomsQuery[r];
+    	sys.puts('checking '+room);
+		if (room in rooms) {
+			sys.puts('checking messages in '+room);
+			for (var i = 0; i < rooms[room].messages.length; i++) {
+			var message = rooms[room].messages[i];
+			if (message.timestamp > since)
+				matching.push(message)
+			}
+			
+			sys.puts(matching.length);
+			if (matching.length != 0) {
+			  callback(matching);
+			} else {
+			  rooms[room].callbacks.push({ timestamp: new Date(), callback: callback });
+			}
 		} else {
-		  rooms[room].callbacks.push({ timestamp: new Date(), callback: callback });
+			sys.puts(rooms[room]);
 		}
-    }
+	}
   };
 
   // clear old callbacks
@@ -118,7 +125,8 @@ function createSession (nick, room) {
   } */
   
   var session = { 
-    nick: nick, 
+    nick: nick,
+    rooms: [room],
     id: Math.floor(Math.random()*99999999999).toString(),
     timestamp: new Date(),
 
@@ -154,7 +162,7 @@ function createSession (nick, room) {
   // okay, not in a room? create one
   if (!inRoom) {
 	  var newroom = {
-  		id: Math.floor(Math.random()*99999999999).toString(),
+  		id: room,
   		timestamp: new Date(),
   		sessions: new Array(),
   		
@@ -211,6 +219,7 @@ fu.listen(Number(process.env.PORT || PORT), HOST);
 
 fu.get("/", fu.staticHandler("index.html"));
 fu.get("/style.css", fu.staticHandler("style.css"));
+fu.get("/jquery-ui.css", fu.staticHandler("jquery-ui.css"));
 fu.get("/client.js", fu.staticHandler("client.js"));
 fu.get("/jquery-1.2.6.min.js", fu.staticHandler("jquery-1.2.6.min.js"));
 
@@ -286,15 +295,30 @@ fu.get("/join", function (req, res) {
     return;
   }
 
-  sys.puts("connection: " + nick + "@" + res.connection.remoteAddress + " in room " + session.room.id);
+  sys.puts("connection: " + nick + "@" + res.connection.remoteAddress + " in room " + room);
 
-  channel.appendMessage(session.nick, "join");
+  channel.appendMessage(session.nick, "join", room, room);
   res.simpleJSON(200, { id: session.id
                       , nick: session.nick
-                      , url: "#room" + session.room.id
+                      , url: room
                       , rss: mem.rss
                       , starttime: starttime
+                      , room: room
                       });
+});
+
+fu.get("/joinRoom", function(req, res) {
+	var room = qs.parse(url.parse(req.url).query).room;
+	var id = qs.parse(url.parse(req.url).query).id;
+	if (id && sessions[id]){
+		var session = sessions[id];
+		session.rooms.push(room); //add to their list of currently subscribed rooms
+		channel.appendMessage(session.nick, "join", room, room); //necessary to create room if it doesn't exist (!)
+		var result = 'success';
+	} else {
+		var result = 'failure';
+	}
+	res.simpleJSON(200, { result: result });
 });
 
 fu.get("/part", function (req, res) {
@@ -329,15 +353,18 @@ fu.get("/recv", function (req, res) {
   
   var since = parseInt(qs.parse(url.parse(req.url).query).since, 10);
 
-  channel.query(session, since, function (messages) {
+  rooms = session.rooms;
+  sys.puts(rooms);
+  channel.query(rooms, since, function (messages) {
     if (session) session.poke();
-    res.simpleJSON(200, { messages: messages, rss: mem.rss });
+    res.simpleJSON(200, { messages: messages, rss: mem.rss, rooms: rooms });
   });
 });
 
 fu.get("/send", function (req, res) {
   var id = qs.parse(url.parse(req.url).query).id;
   var text = qs.parse(url.parse(req.url).query).text;
+  var room = qs.parse(url.parse(req.url).query).room;
 
   var session = sessions[id];
   if (!session || !text) {
@@ -347,7 +374,6 @@ fu.get("/send", function (req, res) {
 
   session.poke();
 
-  channel.appendMessage(session.nick, "msg", text);
+  channel.appendMessage(session.nick, "msg", text, room);
   res.simpleJSON(200, { rss: mem.rss });
 });
-

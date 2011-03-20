@@ -1,8 +1,10 @@
 body {
   padding: 0;
   margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
-body, #entry {
+body, .entry {
   background: #22252a;
   color: #eee;
 }
@@ -29,6 +31,16 @@ h1 {
 
 }
 
+div, input[type='text'] {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#app {
+	height: 100%;
+}
+
 
 a { text-decoration: none; color: #888; }
 a:hover { text-decoration: underline; color: #aaa; }
@@ -53,14 +65,14 @@ a:hover { text-decoration: underline; color: #aaa; }
 }
 
 #toolbar {
-  position: fixed;
+  position: relative;
   color: #fff;
-  width: 100%; 
-  bottom: 0;
+  width: 100%;
   background: #733;
+  height: 85px;
 }
 
-#entry {
+.entry {
   width: 100%;
   font-size: inherit;
   padding: 1em;
@@ -70,12 +82,15 @@ a:hover { text-decoration: underline; color: #aaa; }
   clear: both;
 }
 
-#log {
+.log {
   display: block;
   /* enough padding to clear the toolbar.. is there a better way to do this? */
-  padding-bottom: 5.1em; 
+  padding: 10px; 
   background: inherit;
   overflow: hidden;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
 }
 
 /* not very important info */
@@ -169,3 +184,50 @@ colorwheel0 is always a light grey for the user
    background-color: #321121;
 }
 
+/******** chat windows *********/
+
+.chat {
+	display: -webkit-box;
+	display: -moz-box;
+	display: box;
+	-webkit-box-orient: vertical;
+	-moz-box-orient: vertical;
+	box-orient: vertical;
+	height: 100%;
+}
+
+.chatWindow {
+	height: 200px;
+	width: 400px;
+	background-color: white;
+	position: absolute !important;
+	top: 50px;
+	right: 50px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	padding: 10px;
+	background-color: hsl(240, 50%, 90%);
+	cursor: pointer;
+}
+
+.chatWindow .entry {
+	bottom: 0;
+	background: #555;
+	height: 20px;
+	padding-left: 5px;
+	font-size: 16px;
+}
+
+.chatWindow .log {
+	background: #222;
+	padding: 10px;
+	-webkit-border-radius: 10px 10px 0 0;
+	-moz-border-radius: 10px 10px 0 0;
+	border-radius: 10px 10px 0 0;
+}
+
+.chatWindow table {
+	font-size: 16px;
+	line-height: 140%;
+}

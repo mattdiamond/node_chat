@@ -9,6 +9,8 @@ var CONFIG = { debug: false
 
 var nicks = [];
 
+var currPoll = null;
+
 //  CUT  ///////////////////////////////////////////////////////////////////
 /* This license and copyright apply to all code until the next "CUT"
 http://github.com/jherdman/javascript-relative-time-helpers/
@@ -116,9 +118,9 @@ function updateUsersLink ( ) {
 }
 
 //handles another person joining chat
-function userJoin(nick, timestamp) {
+function userJoin(nick, timestamp, room) {
   //put it in the stream
-  addMessage(nick, "joined", timestamp, "join");
+  addMessage(nick, "joined", timestamp, room, "join");
   
   // create a new CSS class for him unless it's the logged in user
   // they get their own class elsewhere
@@ -136,9 +138,9 @@ function userJoin(nick, timestamp) {
 }
 
 //handles someone leaving
-function userPart(nick, timestamp) {
+function userPart(nick, timestamp, room) {
   //put it in the stream
-  addMessage(nick, "left", timestamp, "part");
+  addMessage(nick, "left", timestamp, room, "part");
   //remove the user from the list
   for (var i = 0; i < nicks.length; i++) {
     if (nicks[i] == nick) {
@@ -190,16 +192,18 @@ util = {
 };
 
 //used to keep the most recent messages visible
-function scrollDown () {
-  window.scrollBy(0, 100000000000000000);
-  $("#entry").focus();
+function scrollDown (room) {
+  var chatroom = $(".chat[data-name='"+room+"']");
+  var logElem = $(".log", chatroom)[0];
+  logElem.scrollTop = logElem.scrollHeight;
+  $(".entry", chatroom).focus();
 }
 
 //inserts an event into the stream for display
 //the event may be a msg, join or part type
 //from is the user, text is the body and time is the timestamp, defaulting to now
 //_class is a css class to apply to the message, usefull for system events
-function addMessage (from, text, time, _class) {
+function addMessage (from, text, time, room, _class) {
   if (text === null)
     return;
 
@@ -236,6 +240,8 @@ function addMessage (from, text, time, _class) {
   // replace URLs with links
   text = text.replace(util.urlRE, '<a target="_blank" href="$&">$&</a>');
   
+  text = text.replace(/(#\w+)/g, '<a target="_blank" class="hashLink" href="/$1">$1</a>');
+  
   // just get some unique-ish numbers for this user to assign the bubble a color
   var color = "";
   if (from == CONFIG.nick) {
@@ -252,16 +258,16 @@ function addMessage (from, text, time, _class) {
   var content = '<tr>'
               + '  <td class="date">' + util.timeString(time) + '</td>'
               + '  <td class="nick">' + util.toStaticHTML(from) + '</td>'
-              + '  <td class="msg-text"><div class="' + from + ' ' + color + '">' + text  + '</div></td>'
+              + '  <td class="msg-text"><div class="' + from + '">' + text  + '</div></td>'
               + '</tr>'
               ;
   messageElement.html(content);
 
   //the log is the stream that we view
-  $("#log").append(messageElement);
+  $('.chat[data-name="'+room+'"]').find(".log").append(messageElement);
 
   //always view the most recent message when it is added
-  scrollDown();
+  scrollDown(room);
 }
 
 function updateRSS () {
@@ -281,7 +287,7 @@ function updateRSS () {
 
 function updateJoinUrl () {
 	if (CONFIG.url) {
-		location.hash = CONFIG.url.split("#")[1];
+		location.hash = CONFIG.url;
 		var loc = window.location.toString();
 		$("#joinurl").text(loc);
 	}
@@ -317,6 +323,7 @@ function longPoll (data) {
   //process any updates we may have
   //data will be null on the first call of longPoll
   if (data && data.messages) {
+  	console.log(data);
     for (var i = 0; i < data.messages.length; i++) {
       var message = data.messages[i];
 
@@ -330,15 +337,15 @@ function longPoll (data) {
           if(!CONFIG.focus){
             CONFIG.unread++;
           }
-          addMessage(message.nick, message.text, message.timestamp);
+          addMessage(message.nick, unescape(message.text), message.timestamp, message.room);
           break;
 
         case "join":
-          userJoin(message.nick, message.timestamp);
+          userJoin(message.nick, message.timestamp, message.room);
           break;
 
         case "part":
-          userPart(message.nick, message.timestamp);
+          userPart(message.nick, message.timestamp, message.room);
           break;
       }
     }
@@ -353,16 +360,16 @@ function longPoll (data) {
   }
 
   //make another request
-  $.ajax({ cache: false
+  currPoll = $.ajax({ cache: false
          , type: "GET"
          , url: "/recv"
          , dataType: "json"
          , data: { since: CONFIG.last_message_time, id: CONFIG.id }
          , error: function () {
-             addMessage("", "long poll error. trying again...", new Date(), "error");
-             transmission_errors += 1;
+             //addMessage("", "long poll error. trying again...", new Date(), "main", "error");
+             //transmission_errors += 1;
              //don't flood the servers on error, wait 10 seconds before retrying
-             setTimeout(longPoll, 10*1000);
+             //setTimeout(longPoll, 10*1000);
            }
          , success: function (data) {
              transmission_errors = 0;
@@ -377,11 +384,11 @@ function longPoll (data) {
 }
 
 //submit a new message to the server
-function send(msg) {
+function send(msg, room) {
   if (CONFIG.debug === false) {
     // XXX should be POST
     // XXX should add to messages immediately
-    jQuery.get("/send", {id: CONFIG.id, text: msg}, function (data) { }, "json");
+    jQuery.get("/send", {id: CONFIG.id, text: escape(msg), room: room}, function (data) { }, "json");
   }
 }
 
@@ -423,12 +430,13 @@ function showLoad () {
 //transition the page to the main chat view, putting the cursor in the textfield
 function showChat (nick) {
   $("#toolbar").show();
-  $("#entry").focus();
+  $(".entry").focus();
 
   $("#connect").hide();
   $("#loading").hide();
 
-  scrollDown();
+  var room = $(".root.chat").attr('data-name');
+  scrollDown(room);
 }
 
 //we want to show a count of unread messages when the window does not have focus
@@ -479,7 +487,7 @@ function onConnect (session) {
   });
   
   // create a style for the user
-  $("<style type='text/css'> ." + session.nick + " { padding: 2px; border-radius: 2px; } </style>").appendTo("head");
+  //$("<style type='text/css'> ." + session.nick + " { padding: 2px; border-radius: 2px; } </style>").appendTo("head");
 
   
   // begin polling the server
@@ -508,11 +516,12 @@ function who () {
 $(document).ready(function() {
 
   //submit new messages when the user hits enter if the message isnt blank
-  $("#entry").keypress(function (e) {
+  $(".entry").live('keypress', function (e) {
     if (e.keyCode != 13 /* Return */) return;
-    var msg = $("#entry").attr("value").replace("\n", "");
-    if (!util.isBlank(msg)) send(msg);
-    $("#entry").attr("value", ""); // clear the entry field.
+    var msg = $(this).val().replace("\n", "");
+    var room = $(this).closest('.chat').attr('data-name');
+    if (!util.isBlank(msg)) send(msg, room);
+    $(this).val(''); // clear the entry field.
   });
 
   $("#usersLink").click(outputUsers);
@@ -537,7 +546,7 @@ $(document).ready(function() {
       return false;
     }
     
-    var room = (location.hash == undefined) ? "" : location.hash.replace("#room", "");
+    var room = (location.hash == '') ? "main" : location.hash.replace("#", "");
     
     //make the actual join request to the server
     $.ajax({ cache: false
@@ -567,7 +576,7 @@ $(document).ready(function() {
   }
 
   // remove fixtures
-  $("#log table").remove();
+  $(".log table").remove();
 
   //begin listening for updates right away
   //interestingly, we don't need to join a room to get its updates
@@ -577,9 +586,37 @@ $(document).ready(function() {
   //longPoll();
 
   showConnect();
+  
+  $(".hashLink").live('click', function(){
+  	var name = $(this).text().substring(1);
+  	//alert(name);
+  	spawnRoom(name);
+  	return false;
+  });
 });
 
 //if we can, notify the server that we're going away.
 $(window).unload(function () {
   jQuery.get("/part", {id: CONFIG.id}, function (data) { }, "json");
 });
+
+$(window).resize(function() {
+	var root = $('.root.chat');
+	if (root.length){
+		var room = root.attr('data-name');
+		scrollDown(room);
+	}
+});
+
+function spawnRoom(name){
+	$.getJSON('/joinRoom', {id: CONFIG.id, room: name }, function(response){
+		if (response.result == 'success'){
+			var window = $(".chatWindow.template").clone().attr('data-name', name).removeClass('template');
+			window.appendTo("body").draggable().resizable();
+			window.show();
+			console.log(currPoll);
+			currPoll.abort();
+			longPoll(); // need to restart long polling with new room config
+		}
+	});
+}
