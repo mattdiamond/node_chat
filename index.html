@@ -29,7 +29,7 @@
       </div>
       <div id="loading"><p>loading</p></div>
 	  <div class='root chat' data-name='main'>
-		  <div class="log"></div>
+		  <table class="log"><tbody></tbody></table>
 		  <div id="toolbar">
 			<ul id="status">
 			  <li><span id="joinurl">http://nothing</span></li>
@@ -42,10 +42,12 @@
 		  </div>
 	  </div>
       
-      <div class='chat chatWindow template' style='display: none;'>
-      	  <div class='title'></div>
-      	  <div class='log'></div>
-      	  <input tabindex="1" type="text" class="entry"/>
+      <div class='chatWindow template' style='display: none;'>
+      	  <div class='chat'>
+			  <div class='title'></div>
+			  <table class='log'><tbody></tbody></table>
+			  <input tabindex="1" type="text" class="entry"/>
+      	  </div>
       </div>
   </body>
   <script type="text/javascript">

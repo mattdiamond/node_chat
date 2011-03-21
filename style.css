@@ -2,7 +2,6 @@ body {
   padding: 0;
   margin: 0;
   height: 100%;
-  overflow: hidden;
 }
 body, .entry {
   background: #22252a;
@@ -65,7 +64,6 @@ a:hover { text-decoration: underline; color: #aaa; }
 }
 
 #toolbar {
-  position: relative;
   color: #fff;
   width: 100%;
   background: #733;
@@ -84,10 +82,10 @@ a:hover { text-decoration: underline; color: #aaa; }
 
 .log {
   display: block;
-  /* enough padding to clear the toolbar.. is there a better way to do this? */
   padding: 10px; 
   background: inherit;
-  overflow: hidden;
+  overflow: auto;
+  height: 0px;
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   box-flex: 1;
@@ -99,8 +97,6 @@ a:hover { text-decoration: underline; color: #aaa; }
 .personal .nick, .notice .nick { color: #cd5; }
 
 .message {
-  /* margin: 0.1em 0; 
-  remove the margin so the bubbles bleed togehter */
 }
 
 .message td {
@@ -194,6 +190,7 @@ colorwheel0 is always a light grey for the user
 	-moz-box-orient: vertical;
 	box-orient: vertical;
 	height: 100%;
+	width: 100%;
 }
 
 .chatWindow {
@@ -209,6 +206,9 @@ colorwheel0 is always a light grey for the user
 	padding: 0 10px 10px 10px;
 	background-color: hsl(240, 50%, 90%);
 	cursor: pointer;
+	-webkit-box-shadow: 1px 1px 5px #000;
+	-moz-box-shadow: 1px 1px 5px #000;
+	box-shadow: 1px 1px 5px #000;
 }
 
 .chatWindow .title {
@@ -219,14 +219,16 @@ colorwheel0 is always a light grey for the user
 .chatWindow .entry {
 	bottom: 0;
 	background: #555;
-	height: 20px;
-	padding-left: 5px;
+	height: 30px;
+	padding: 5px 8px;
 	font-size: 16px;
+	-webkit-border-radius: 0 0 10px 10px;
+	-moz-border-radius: 0 0 10px 10px;
+	border-radius: 0 0 10px 10px;
 }
 
 .chatWindow .log {
 	background: #eee;
-	padding: 10px;
 	-webkit-border-radius: 10px 10px 0 0;
 	-moz-border-radius: 10px 10px 0 0;
 	border-radius: 10px 10px 0 0;

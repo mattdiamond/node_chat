@@ -219,7 +219,7 @@ function addMessage (from, text, time, room, _class) {
   //  the time,
   //  the person who caused the event,
   //  and the content
-  var messageElement = $(document.createElement("table"));
+  var messageElement = $(document.createElement("tr"));
 
   messageElement.addClass("message");
   
@@ -255,16 +255,14 @@ function addMessage (from, text, time, room, _class) {
   	color = "colorwheel" + ((charcodes % 10) + 1);
   }
   
-  var content = '<tr>'
-              + '  <td class="date">' + util.timeString(time) + '</td>'
-              + '  <td class="nick">' + util.toStaticHTML(from) + '</td>'
-              + '  <td class="msg-text"><div class="' + from + '">' + text  + '</div></td>'
-              + '</tr>'
+  var content = '<td class="date">' + util.timeString(time) + '</td>'
+              + '<td class="nick">' + util.toStaticHTML(from) + '</td>'
+              + '<td class="msg-text"><span class="' + from + '">' + text  + '</span></td>'
               ;
   messageElement.html(content);
 
   //the log is the stream that we view
-  $('.chat[data-name="'+room+'"]').find(".log").append(messageElement);
+  $('.chat[data-name="'+room+'"]').find(".log tbody").append(messageElement);
 
   //always view the most recent message when it is added
   scrollDown(room);
@@ -602,6 +600,11 @@ $(document).ready(function() {
   	spawnRoom(name);
   	return false;
   });
+  
+  $(".chatWindow").live('mousedown', function(){
+  	$(".chatWindow").not(this).css({ 'zIndex' : 1 });
+  	$(this).css({ 'zIndex' : 10 });
+  });
 });
 
 //if we can, notify the server that we're going away.
@@ -620,10 +623,11 @@ $(window).resize(function() {
 function spawnRoom(name){
 	$.getJSON('/joinRoom', {id: CONFIG.id, room: name }, function(response){
 		if (response.result == 'success'){
-			var window = $(".chatWindow.template").clone().attr('data-name', name).removeClass('template');
-			$(".title", window).text('#'+name)
-			window.appendTo("body").draggable().resizable();
-			window.show('fold', 250);
+			var chatWindow = $(".chatWindow.template").clone().removeClass('template');
+			$('.chat', chatWindow).attr('data-name', name);
+			$(".title", chatWindow).text('#'+name)
+			chatWindow.appendTo("body").draggable().resizable();
+			chatWindow.show('fold', 250);
 			console.log(currPoll);
 			currPoll.abort();
 			longPoll(); // need to restart long polling with new room config
