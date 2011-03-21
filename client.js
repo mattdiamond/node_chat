@@ -628,9 +628,20 @@ function spawnRoom(name){
 			$(".title", chatWindow).text('#'+name);
 			$(".chatWindow").removeClass('top');
 			chatWindow.addClass('top');
+			var top = 50;
+			$('.chatWindow').each(function(){
+				var pos = $(this).position();
+				var topOffset = pos.top;
+				var rightOffset = window.innerWidth - pos.left;
+				if (topOffset == top && rightOffset == 465)
+					top += 35;
+			});
+			chatWindow.css({ 'top' : top });
 			chatWindow.appendTo("body").draggable().resizable();
 			chatWindow.show('fold', 250, function(){
 				$('.entry', this).focus();
+				console.log(window.innerWidth - $(this).position().left);
+				console.log($(this).position().top);
 			});
 			currPoll.abort();
 			longPoll(); // need to restart long polling with new room config
