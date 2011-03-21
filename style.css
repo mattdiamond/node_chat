@@ -247,6 +247,6 @@ colorwheel0 is always a light grey for the user
 	color: #333;
 }
 
-.chatWindow .top {
+.chatWindow.top {
 	z-index: 10;
 }
