@@ -631,9 +631,10 @@ function spawnRoom(name){
 			var top = 50;
 			$('.chatWindow').each(function(){
 				var pos = $(this).position();
+				console.log(pos);
 				var topOffset = pos.top;
 				var rightOffset = window.innerWidth - pos.left;
-				if (topOffset == top && rightOffset == 465)
+				if (topOffset == top && rightOffset == 450)
 					top += 35;
 			});
 			chatWindow.css({ 'top' : top });

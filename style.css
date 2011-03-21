@@ -2,6 +2,7 @@ body {
   padding: 0;
   margin: 0;
   height: 100%;
+  overflow: hidden;
 }
 body, .entry {
   background: #22252a;
@@ -214,6 +215,12 @@ colorwheel0 is always a light grey for the user
 .chatWindow .title {
 	padding: 5px 0;
 	color: #555;
+}
+
+.chatWindow .close {
+	position: absolute;
+	top: 5px;
+	right: 7px;
 }
 
 .chatWindow .entry {
