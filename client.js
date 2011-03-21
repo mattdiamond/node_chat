@@ -321,7 +321,7 @@ function longPoll (data) {
   //process any updates we may have
   //data will be null on the first call of longPoll
   if (data && data.messages) {
-  	console.log(data);
+  	//console.log(data);
     for (var i = 0; i < data.messages.length; i++) {
       var message = data.messages[i];
 
@@ -631,7 +631,7 @@ function spawnRoom(name){
 			var top = 50;
 			$('.chatWindow').each(function(){
 				var pos = $(this).position();
-				console.log(pos);
+				//console.log(pos);
 				var topOffset = pos.top;
 				var rightOffset = window.innerWidth - pos.left;
 				if (topOffset == top && rightOffset == 450)
@@ -641,8 +641,8 @@ function spawnRoom(name){
 			chatWindow.appendTo("body").draggable().resizable();
 			chatWindow.show('fold', 250, function(){
 				$('.entry', this).focus();
-				console.log(window.innerWidth - $(this).position().left);
-				console.log($(this).position().top);
+				//console.log(window.innerWidth - $(this).position().left);
+				//console.log($(this).position().top);
 			});
 			currPoll.abort();
 			longPoll(); // need to restart long polling with new room config
