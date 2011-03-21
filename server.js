@@ -44,16 +44,15 @@ var channel = new function () {
         sys.puts(nick + " part");
         break;
     }
+    
+    room = '"'+room+'"';
 	
     //sys.puts("this is the roomsroom: " + rooms[room]);
-    if (rooms[room] == undefined)  {
+    if (rooms[room] === undefined)  {
     	rooms[room] = { messages: [], callbacks: [] };
     }
 
-    
-    rooms[room].messages.push( m );
-    //sys.puts("appendMessage for " + nick + " in room " + room);
-    //sys.puts("--> room messages length: " + rooms[room].messages.length);    
+    rooms[room].messages.push( m );   
 
     while (rooms[room].callbacks.length > 0) {
       rooms[room].callbacks.shift().callback([m]);
@@ -68,6 +67,7 @@ var channel = new function () {
     //var room = session.room.id;
     for(var r = 0; r < roomsQuery.length; r++){
     	var room = roomsQuery[r];
+    	room = '"'+room+'"';
     	sys.puts('checking '+room);
 		if (room in rooms) {
 			sys.puts('checking messages in '+room);

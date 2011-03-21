@@ -194,7 +194,7 @@ util = {
 //used to keep the most recent messages visible
 function scrollDown (room) {
   var chatroom = $(".chat[data-name='"+room+"']");
-  var logElem = $(".log", chatroom)[0];
+  var logElem = $(".logContainer", chatroom)[0];
   logElem.scrollTop = logElem.scrollHeight;
   $(".entry", chatroom).focus();
 }
@@ -602,8 +602,8 @@ $(document).ready(function() {
   });
   
   $(".chatWindow").live('mousedown', function(){
-  	$(".chatWindow").not(this).css({ 'zIndex' : 1 });
-  	$(this).css({ 'zIndex' : 10 });
+  	$(".chatWindow").not(this).removeClass('top');
+  	$(this).addClass('top');
   });
 });
 
@@ -625,10 +625,13 @@ function spawnRoom(name){
 		if (response.result == 'success'){
 			var chatWindow = $(".chatWindow.template").clone().removeClass('template');
 			$('.chat', chatWindow).attr('data-name', name);
-			$(".title", chatWindow).text('#'+name)
+			$(".title", chatWindow).text('#'+name);
+			$(".chatWindow").removeClass('top');
+			chatWindow.addClass('top');
 			chatWindow.appendTo("body").draggable().resizable();
-			chatWindow.show('fold', 250);
-			console.log(currPoll);
+			chatWindow.show('fold', 250, function(){
+				$('.entry', this).focus();
+			});
 			currPoll.abort();
 			longPoll(); // need to restart long polling with new room config
 		}
