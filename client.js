@@ -605,6 +605,12 @@ $(document).ready(function() {
   	$(".chatWindow").not(this).removeClass('top');
   	$(this).addClass('top');
   });
+  
+  $("button.close").live('click', function(){
+  	$(this).closest('.chatWindow').hide('fold', function(){
+  		$(this).remove();
+  	});
+  });
 });
 
 //if we can, notify the server that we're going away.
