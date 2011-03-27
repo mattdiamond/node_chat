@@ -124,9 +124,9 @@ function userJoin(nick, timestamp, room) {
   
   // create a new CSS class for him unless it's the logged in user
   // they get their own class elsewhere
-  if(nick != CONFIG.nick) {
-  	$("<style type='text/css'> ." + nick + "{ padding: 5px; border-radius: 10px; } </style>").appendTo("head");
-  }
+  // if(nick != CONFIG.nick) {
+//   	$("<style type='text/css'> ." + nick + "{ padding: 5px; border-radius: 10px; } </style>").appendTo("head");
+//   }
   
   //if we already know about this user, ignore it
   for (var i = 0; i < nicks.length; i++)
@@ -597,18 +597,25 @@ $(document).ready(function() {
   $(".hashLink").live('click', function(){
   	var name = $(this).text().substring(1);
   	//alert(name);
-  	spawnRoom(name);
+  	var room = $(".chat[data-name='"+name+"']");
+  	if (room.length){
+  		makeWindowActive(room.closest('.chatWindow'));
+  		$('input', room).focus();
+  	} else {
+  		spawnRoom(name);
+  	}
   	return false;
   });
   
   $(".chatWindow").live('mousedown', function(){
-  	$(".chatWindow").not(this).removeClass('top');
-  	$(this).addClass('top');
+  	makeWindowActive($(this));
   });
   
   $("button.close").live('click', function(){
   	$(this).closest('.chatWindow').hide('fold', function(){
+  		var name = $(this).find('.chat').attr('data-name');
   		$(this).remove();
+  		$.get('/leaveRoom', { id: CONFIG.id, room: name });
   	});
   });
 });
@@ -632,8 +639,6 @@ function spawnRoom(name){
 			var chatWindow = $(".chatWindow.template").clone().removeClass('template');
 			$('.chat', chatWindow).attr('data-name', name);
 			$(".title", chatWindow).text('#'+name);
-			$(".chatWindow").removeClass('top');
-			chatWindow.addClass('top');
 			var top = 50;
 			$('.chatWindow').each(function(){
 				var pos = $(this).position();
@@ -646,6 +651,10 @@ function spawnRoom(name){
 			chatWindow.css({ 'top' : top });
 			chatWindow.appendTo("body").draggable().resizable();
 			chatWindow.show('fold', 250, function(){
+				var topWindow = $('.chatWindow.top');
+				topWindow.removeClass('top');
+				var z = parseInt(topWindow.css('zIndex'));
+				$(this).addClass('top').css('zIndex', z+1).data('lower', topWindow);
 				$('.entry', this).focus();
 				//console.log(window.innerWidth - $(this).position().left);
 				//console.log($(this).position().top);
@@ -654,4 +663,37 @@ function spawnRoom(name){
 			longPoll(); // need to restart long polling with new room config
 		}
 	});
+}
+
+function makeWindowActive(window){
+	if (window.hasClass('top'))
+		return true;
+	var topWindow = $(".chatWindow.top");
+	if (topWindow.length){
+		var zIndex = topWindow.css('zIndex');
+		topWindow.removeClass('top');
+		window.css('zIndex', zIndex).addClass('top');
+		shiftZIndices(topWindow, window);
+		window.data('lower', topWindow);
+	} else {
+		window.css('zIndex', 1).addClass('top').data('lower', null);
+	}
+	window.find('input').focus();
+}
+
+function shiftZIndices(start, target){
+	var curr = start;
+	var targetName = target.find('.chat').attr('data-name');
+	var last;
+	var z;
+	while (curr.find('.chat').attr('data-name') != targetName){
+		console.log(curr);
+		z = parseInt(curr.css('zIndex'));
+		curr.css('zIndex', z-1);
+		console.log('z-index: '+curr.css('zIndex'));
+		last = curr;
+		curr = curr.data('lower');
+	}
+	//now relink
+	last.data('lower', target.data('lower'));
 }

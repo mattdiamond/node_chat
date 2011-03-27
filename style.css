@@ -93,7 +93,7 @@ a:hover { text-decoration: underline; color: #aaa; }
 }
 
 /* not very important info */
-.notice td, .join td, .part td, .message .date { color: #555; }
+.notice td, .join td, .part td, .message .date { color: #777; }
 .error td { color: #933; }
 .personal .nick, .notice .nick { color: #cd5; }
 
@@ -107,6 +107,7 @@ a:hover { text-decoration: underline; color: #aaa; }
 .nick { 
   font-weight: bold;
   padding: 0 1em 0 0.5em;
+  width: 100px;
 }
 
 .nick a {
@@ -211,6 +212,7 @@ colorwheel0 is always a light grey for the user
 	-moz-box-shadow: 1px 1px 5px #000;
 	box-shadow: 1px 1px 5px #000;
 	opacity: 0.7;
+	z-index: 1;
 }
 
 .chatWindow .title {
@@ -249,6 +251,5 @@ colorwheel0 is always a light grey for the user
 }
 
 .chatWindow.top {
-	z-index: 10;
 	opacity: 1.0;
 }

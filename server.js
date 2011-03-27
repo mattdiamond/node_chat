@@ -289,6 +289,8 @@ fu.get("/join", function (req, res) {
     res.simpleJSON(400, {error: "Bad nick."});
     return;
   }
+  if (nick.length > 15)
+  	nick = nick.substring(0, 15);
   var session = createSession(nick, room);
   if (session == null) {
     res.simpleJSON(400, {error: "Nick in use"});
@@ -313,12 +315,25 @@ fu.get("/joinRoom", function(req, res) {
 	if (id && sessions[id]){
 		var session = sessions[id];
 		session.rooms.push(room); //add to their list of currently subscribed rooms
+		sys.puts(session.rooms);
 		channel.appendMessage(session.nick, "join", room, room); //necessary to create room if it doesn't exist (!)
 		var result = 'success';
 	} else {
 		var result = 'failure';
 	}
 	res.simpleJSON(200, { result: result });
+});
+
+fu.get('/leaveRoom', function(req, res) {
+	var room = qs.parse(url.parse(req.url).query).room;
+	var id = qs.parse(url.parse(req.url).query).id;
+	if (id && sessions[id]){
+		var session = sessions[id];
+		var rooms = session.rooms;
+		rooms.splice(rooms.indexOf(room), 1);
+		channel.appendMessage(session.nick, "part", room, room);
+	}
+	res.simpleText(200, 'OK');
 });
 
 fu.get("/part", function (req, res) {
