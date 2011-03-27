@@ -14,7 +14,8 @@ setInterval(function () {
 var fu = require("./fu"),
     sys = require("sys"),
     url = require("url"),
-    qs = require("querystring");
+    qs = require("querystring"),
+    Cookies = require("cookies");
 
 var MESSAGE_BACKLOG = 200,
     SESSION_TIMEOUT = 60 * 1000;
@@ -139,7 +140,7 @@ function createSession (nick, room) {
       
       // TODO: this seems silly. we should just as the room to nuke its own reference
       // eremove the room's reference to the session
-      delete rooms[session.room.id].sessions[session.id];
+      // delete rooms[session.room.id].sessions[session.id];
       delete sessions[session.id];
     }
   };
@@ -291,11 +292,15 @@ fu.get("/join", function (req, res) {
   }
   if (nick.length > 15)
   	nick = nick.substring(0, 15);
+  
   var session = createSession(nick, room);
   if (session == null) {
     res.simpleJSON(400, {error: "Nick in use"});
     return;
   }
+  
+  var cookies = new Cookies(req, res);
+  cookies.set('sessionid', session.id);
 
   sys.puts("connection: " + nick + "@" + res.connection.remoteAddress + " in room " + room);
 

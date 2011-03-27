@@ -141,15 +141,17 @@ function userJoin(nick, timestamp, room) {
 function userPart(nick, timestamp, room) {
   //put it in the stream
   addMessage(nick, "left", timestamp, room, "part");
-  //remove the user from the list
-  for (var i = 0; i < nicks.length; i++) {
-    if (nicks[i] == nick) {
-      nicks.splice(i,1)
-      break;
-    }
+  if ($(".root.chat").attr('data-name') == room){
+	  //remove the user from the list
+	  for (var i = 0; i < nicks.length; i++) {
+		if (nicks[i] == nick) {
+		  nicks.splice(i,1)
+		  break;
+		}
+	  }
+	  //update the UI
+	  updateUsersLink();
   }
-  //update the UI
-  updateUsersLink();
 }
 
 // utility functions
@@ -204,7 +206,7 @@ function scrollDown (room) {
 //from is the user, text is the body and time is the timestamp, defaulting to now
 //_class is a css class to apply to the message, usefull for system events
 function addMessage (from, text, time, room, _class) {
-  if (text === null)
+  if (text === null || $('.chat[data-name="'+room+'"]').length == 0)
     return;
 
   if (time == null) {
@@ -614,6 +616,7 @@ $(document).ready(function() {
   $("button.close").live('click', function(){
   	$(this).closest('.chatWindow').hide('fold', function(){
   		var name = $(this).find('.chat').attr('data-name');
+  		$(this).data('lower').addClass('top').find('input').focus();
   		$(this).remove();
   		$.get('/leaveRoom', { id: CONFIG.id, room: name });
   	});

@@ -28,6 +28,7 @@ h1 {
   border-radius: 20px;
   background-color: #708090;
   padding: 10px;
+  margin: 10px;
 
 }
 
@@ -252,4 +253,11 @@ colorwheel0 is always a light grey for the user
 
 .chatWindow.top {
 	opacity: 1.0;
+}
+
+.credits {
+	font-size: 12px;
+	position: fixed;
+	bottom: 10px;
+	right: 20px;
 }
