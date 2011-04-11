@@ -136,7 +136,9 @@ function createSession (nick, room) {
     },
 
     destroy: function () {
-      channel.appendMessage(session.nick, "part");
+      for (var room in rooms){
+      	channel.appendMessage(session.nick, "part", room, room);
+      }
       
       // TODO: this seems silly. we should just as the room to nuke its own reference
       // eremove the room's reference to the session
