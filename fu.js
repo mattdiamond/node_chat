@@ -1,6 +1,6 @@
 var createServer = require("http").createServer;
 var readFile = require("fs").readFile;
-var sys = require("sys");
+var util = require('util');
 var url = require("url");
 DEBUG = false;
 
@@ -45,7 +45,7 @@ var server = createServer(function (req, res) {
 
 fu.listen = function (port, host) {
   server.listen(port, host);
-  sys.puts("Server at http://" + (host || "127.0.0.1") + ":" + port.toString() + "/");
+  util.puts("Server at http://" + (host || "127.0.0.1") + ":" + port.toString() + "/");
 };
 
 fu.close = function () { server.close(); };
@@ -65,17 +65,17 @@ fu.staticHandler = function (filename) {
       return;
     }
 
-    sys.puts("loading " + filename + "...");
+    util.puts("loading " + filename + "...");
     readFile(filename, function (err, data) {
       if (err) {
-        sys.puts("Error loading " + filename);
+        util.puts("Error loading " + filename);
       } else {
         body = data;
         headers = { "Content-Type": content_type
                   , "Content-Length": body.length
                   };
         if (!DEBUG) headers["Cache-Control"] = "public";
-        sys.puts("static file " + filename + " loaded");
+        util.puts("static file " + filename + " loaded");
         callback();
       }
     });

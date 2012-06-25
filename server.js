@@ -12,7 +12,7 @@ setInterval(function () {
 
 
 var fu = require("./fu"),
-    sys = require("sys"),
+    util = require('util'),
     url = require("url"),
     qs = require("querystring"),
     Cookies = require("cookies");
@@ -36,19 +36,19 @@ var channel = new function () {
 
     switch (type) {
       case "msg":
-        sys.puts("<" + nick + "> " + text);
+        util.puts("<" + nick + "> " + text);
         break;
       case "join":
-        sys.puts(nick + " join");
+        util.puts(nick + " join");
         break;
       case "part":
-        sys.puts(nick + " part");
+        util.puts(nick + " part");
         break;
     }
     
     room = '"'+room+'"';
 	
-    //sys.puts("this is the roomsroom: " + rooms[room]);
+    //util.puts("this is the roomsroom: " + rooms[room]);
     if (rooms[room] === undefined)  {
     	rooms[room] = { messages: [], callbacks: [] };
     }
@@ -69,23 +69,23 @@ var channel = new function () {
     for(var r = 0; r < roomsQuery.length; r++){
     	var room = roomsQuery[r];
     	room = '"'+room+'"';
-    	sys.puts('checking '+room);
+    	util.puts('checking '+room);
 		if (room in rooms) {
-			sys.puts('checking messages in '+room);
+			util.puts('checking messages in '+room);
 			for (var i = 0; i < rooms[room].messages.length; i++) {
 			var message = rooms[room].messages[i];
 			if (message.timestamp > since)
 				matching.push(message)
 			}
 			
-			sys.puts(matching.length);
+			util.puts(matching.length);
 			if (matching.length != 0) {
 			  callback(matching);
 			} else {
 			  rooms[room].callbacks.push({ timestamp: new Date(), callback: callback });
 			}
 		} else {
-			sys.puts(rooms[room]);
+			util.puts(rooms[room]);
 		}
 	}
   };
@@ -202,7 +202,7 @@ setInterval(function () {
 // TODO: interval to dump out system stats
 /*
 setInterval(function () {
-	sys.puts(dumpSystemStats());
+	util.puts(dumpSystemStats());
 }, 5000);
 */
 
@@ -261,8 +261,8 @@ fu.get("/who", function (req, res) {
   	noroom = true;
   }
 
-  sys.puts("who id = " + id + " roomid = " + roomid);
-  sys.puts(noid + " " + noroom);
+  util.puts("who id = " + id + " roomid = " + roomid);
+  util.puts(noid + " " + noroom);
   
   if (noid && noroom) return;
   
@@ -278,7 +278,7 @@ fu.get("/who", function (req, res) {
     if (session.room != undefined && session.room.id == roomid) continue;
     nicks.push(session.nick);
   }
-  //sys.puts(nicks.length);
+  //util.puts(nicks.length);
   res.simpleJSON(200, { nicks: nicks
                       , rss: mem.rss
                       });
@@ -304,7 +304,7 @@ fu.get("/join", function (req, res) {
   var cookies = new Cookies(req, res);
   cookies.set('sessionid', session.id);
 
-  sys.puts("connection: " + nick + "@" + res.connection.remoteAddress + " in room " + room);
+  util.puts("connection: " + nick + "@" + res.connection.remoteAddress + " in room " + room);
 
   channel.appendMessage(session.nick, "join", room, room);
   res.simpleJSON(200, { id: session.id
@@ -322,7 +322,7 @@ fu.get("/joinRoom", function(req, res) {
 	if (id && sessions[id]){
 		var session = sessions[id];
 		session.rooms.push(room); //add to their list of currently subscribed rooms
-		sys.puts(session.rooms);
+		util.puts(session.rooms);
 		channel.appendMessage(session.nick, "join", room, room); //necessary to create room if it doesn't exist (!)
 		var result = 'success';
 	} else {
@@ -354,7 +354,7 @@ fu.get("/part", function (req, res) {
 });
 
 fu.get("/recv", function (req, res) {
-  //sys.puts("recv " + req.url);
+  //util.puts("recv " + req.url);
 
 
   if (!qs.parse(url.parse(req.url).query).since) {
@@ -376,7 +376,7 @@ fu.get("/recv", function (req, res) {
   var since = parseInt(qs.parse(url.parse(req.url).query).since, 10);
 
   rooms = session.rooms;
-  sys.puts(rooms);
+  util.puts(rooms);
   channel.query(rooms, since, function (messages) {
     if (session) session.poke();
     res.simpleJSON(200, { messages: messages, rss: mem.rss, rooms: rooms });
